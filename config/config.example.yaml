@@ -1,0 +1,172 @@
+# Pathlight Configuration File
+# Copy this file to config.yaml and modify as needed
+
+# System Configuration
+system:
+  name: "Pathlight"
+  version: "1.0.0"
+  debug: true
+  log_level: "INFO"
+  data_dir: "/home/nvidia/pathlight/data"
+  models_dir: "/home/nvidia/pathlight/models"
+  autonomous_startup: true
+  battery_monitoring: true
+
+# Camera Configuration (IMX219 CSI Camera)
+camera:
+  device_id: 0  # 0 for left camera, 1 for right camera (dual IMX219)
+  width: 1280   # IMX219 supports: 3280x2464, 1920x1080, 1640x1232, 1280x720, 640x480
+  height: 720   # 720p for good performance/quality balance
+  fps: 30       # IMX219 can handle up to 30fps at 720p
+  format: "MJPEG"  # MJPEG for better performance, YUYV for better quality
+  auto_exposure: true
+  auto_focus: true  # IMX219 has fixed focus, but property can be set
+
+# YOLOv8 Configuration
+yolo:
+  model: "yolov8n.pt"  # yolov8n, yolov8s, yolov8m, yolov8l, yolov8x
+  confidence: 0.5
+  iou_threshold: 0.45
+  max_detections: 100
+  classes: [0, 1, 2, 3, 5, 7]  # person, bicycle, car, motorcycle, bus, truck
+  device: "cuda"  # cuda, cpu
+
+# Stereo Vision Configuration
+stereo_vision:
+  calibration_file: "data/stereo_calibration.pkl"
+  camera_separation: 0.12  # meters (12cm typical for IMX219)
+  focal_length: 1000.0  # pixels (will be calibrated)
+  min_depth: 0.1  # meters
+  max_depth: 10.0  # meters
+  block_size: 11  # Stereo matching block size
+  min_disparity: 0
+  num_disparities: 128
+  uniqueness_ratio: 15
+  speckle_window_size: 100
+  speckle_range: 32
+
+# Face Recognition Configuration
+face_recognition:
+  tolerance: 0.6
+  model: "hog"  # hog, cnn
+  upsample: 1
+  database_path: "/home/nvidia/pathlight/data/faces"
+  known_faces_file: "known_faces.pkl"
+
+# Navigation Configuration
+navigation:
+  grid_size: 0.5  # meters
+  max_range: 10.0  # meters
+  safety_margin: 0.5  # meters
+  path_smoothing: true
+  obstacle_cost: 1000
+  path_cost: 1
+
+# LED Array Configuration
+leds:
+  num_leds: 16
+  brightness: 0.8
+  i2c_address: 0x70
+  i2c_bus: 1
+  pattern:
+    forward: [0, 1, 2, 3]
+    left: [4, 5, 6, 7]
+    right: [8, 9, 10, 11]
+    backward: [12, 13, 14, 15]
+
+# Audio Configuration (Enhanced for Small Speakers)
+audio:
+  sample_rate: 44100
+  channels: 2  # Stereo for dual small speakers
+  chunk_size: 1024
+  left_speaker_volume: 0.8
+  right_speaker_volume: 0.8
+  balance: 0.0  # -1.0 (left) to 1.0 (right)
+  noise_reduction: true
+  echo_cancellation: true
+  volume_control: true
+  tts_voice: "en-us"
+  tts_rate: 150
+  tts_volume: 0.8
+  speech_timeout: 5.0
+  phrase_time_limit: 10.0
+
+# IMU Configuration
+imu:
+  i2c_bus: 1
+  i2c_address: 0x68  # MPU6050 default
+  sample_rate: 100  # Hz
+  calibration_samples: 1000
+  enable_head_tracking: true
+  enable_movement_detection: true
+  head_movement_threshold: 10.0  # degrees
+
+# Microcontroller Configuration
+microcontroller:
+  serial_port: "/dev/ttyUSB0"
+  baud_rate: 115200
+  timeout: 1.0
+  tx_pin: 14
+  rx_pin: 15
+  enable_pin: 18
+  enable_sensor_monitoring: true
+  enable_actuator_control: true
+  sensor_types: ["temperature", "humidity", "pressure", "light", "battery"]
+
+# AI Assistant Configuration
+ai_assistant:
+  provider: "openai"  # openai, local
+  model: "gpt-4"
+  api_key: ""  # Set your API key
+  max_tokens: 150
+  temperature: 0.7
+  system_prompt: "You are Pathlight, an AI assistant helping blind individuals navigate and socialize."
+
+# Google Maps Configuration
+google_maps:
+  api_key: ""  # Set your Google Maps API key
+  default_location: "San Francisco, CA"
+  search_radius: 5000  # meters
+
+# Memory and Database Configuration
+database:
+  type: "sqlite"
+  path: "/home/nvidia/pathlight/data/pathlight.db"
+  backup_interval: 3600  # seconds
+
+# Performance Configuration
+performance:
+  max_fps: 30
+  gpu_memory_fraction: 0.8
+  enable_tensorrt: true
+  batch_size: 1
+  num_threads: 4
+
+# Safety Configuration
+safety:
+  emergency_stop_distance: 0.3  # meters
+  warning_distance: 1.0  # meters
+  max_speed: 1.5  # meters/second
+  enable_emergency_stop: true
+  low_battery_threshold: 20  # percent
+  critical_battery_threshold: 10  # percent
+
+# Logging Configuration
+logging:
+  file: "/home/nvidia/pathlight/logs/pathlight.log"
+  max_size: 10485760  # 10MB
+  backup_count: 5
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# Network Configuration
+network:
+  host: "0.0.0.0"
+  port: 8000
+  enable_web_interface: true
+  enable_api: true
+
+# Development Configuration
+development:
+  enable_hot_reload: false
+  enable_profiling: false
+  enable_memory_tracking: false

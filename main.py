@@ -1,0 +1,297 @@
+#!/usr/bin/env python3
+"""
+Pathlight - AI Wearable Navigation Assistant
+Main application entry point
+"""
+
+import os
+import sys
+import signal
+import argparse
+import yaml
+import logging
+import numpy as np
+from pathlib import Path
+from typing import Dict, Any
+
+# Add project root to path
+project_root = Path(__file__).parent
+sys.path.insert(0, str(project_root))
+
+from core.vision.object_detector import ObjectDetector
+from core.vision.face_recognizer import FaceRecognizer
+from core.vision.stereo_vision import StereoVision
+from core.navigation.path_planner import PathPlanner
+from hardware.audio.audio_manager import AudioManager
+from core.memory.memory_manager import MemoryManager
+from hardware.camera.camera_manager import CameraManager
+from hardware.leds.led_controller import LEDController
+from hardware.imu.imu_manager import IMUManager
+from hardware.microcontroller.microcontroller_manager import MicrocontrollerManager# from hardware.audio.audio_io import AudioIO
+from ai.assistant.ai_assistant import AIAssistant
+from ai.voice.voice_processor import VoiceProcessor
+
+
+class PathlightSystem:
+    """Main Pathlight system controller"""
+    
+    def __init__(self, config_path: str = "config/config.yaml"):
+        """Initialize the Pathlight system"""
+        self.config = self._load_config(config_path)
+        self._setup_logging()
+        self.logger = logging.getLogger(__name__)
+        
+        self.running = False
+        self.components = {}
+        
+        # Initialize components
+        self._initialize_components()
+        
+        # Setup signal handlers
+        signal.signal(signal.SIGINT, self._signal_handler)
+        signal.signal(signal.SIGTERM, self._signal_handler)
+        
+    def _load_config(self, config_path: str) -> Dict[str, Any]:
+        """Load configuration from YAML file"""
+        try:
+            with open(config_path, 'r') as f:
+                config = yaml.safe_load(f)
+            return config
+        except FileNotFoundError:
+            print(f"Configuration file not found: {config_path}")
+            print("Please copy config.example.yaml to config.yaml and configure it.")
+            sys.exit(1)
+        except yaml.YAMLError as e:
+            print(f"Error parsing configuration file: {e}")
+            sys.exit(1)
+    
+    def _setup_logging(self):
+        """Setup logging configuration"""
+        log_config = self.config.get('logging', {})
+        log_file = log_config.get('file', 'logs/pathlight.log')
+        log_level = getattr(logging, self.config.get('system', {}).get('log_level', 'INFO'))
+        
+        # Create logs directory
+        os.makedirs(os.path.dirname(log_file), exist_ok=True)
+        
+        # Configure logging
+        logging.basicConfig(
+            level=log_level,
+            format=log_config.get('format', '%(asctime)s - %(name)s - %(levelname)s - %(message)s'),
+            handlers=[
+                logging.FileHandler(log_file),
+                logging.StreamHandler(sys.stdout)
+            ]
+        )
+    
+    def _initialize_components(self):
+        """Initialize all system components"""
+        self.logger.info("Initializing Pathlight components...")
+        
+        try:
+            # Initialize hardware components
+            self.components['camera'] = CameraManager(self.config['camera'])
+            self.components['leds'] = LEDController(self.config['leds'])
+            self.components['audio_io'] = AudioIO(self.config['audio'])
+            
+            # Initialize core AI components
+            self.components['object_detector'] = ObjectDetector(self.config['yolo'])
+            self.components['face_recognizer'] = FaceRecognizer(self.config['face_recognition'])
+            self.components['stereo_vision'] = StereoVision(self.config['stereo_vision'])
+            self.components['path_planner'] = PathPlanner(self.config['navigation'])
+            self.components['audio_manager'] = AudioManager(self.config['audio'])
+            self.components['memory_manager'] = MemoryManager(self.config['database'])
+            
+            # Initialize AI assistant components
+            self.components['ai_assistant'] = AIAssistant(self.config['ai_assistant'])
+            self.components['voice_processor'] = VoiceProcessor(self.config['audio'])
+            
+            self.logger.info("All components initialized successfully")
+            
+        except Exception as e:
+            self.logger.error(f"Failed to initialize components: {e}")
+            raise
+    
+    def _signal_handler(self, signum, frame):
+        """Handle shutdown signals"""
+        self.logger.info(f"Received signal {signum}, shutting down...")
+        self.stop()
+    
+    def start(self):
+        """Start the Pathlight system"""
+        if self.running:
+            self.logger.warning("System is already running")
+            return
+        
+        self.logger.info("Starting Pathlight system...")
+        
+        try:
+            # Start all components
+            for name, component in self.components.items():
+                if hasattr(component, 'start'):
+                    self.logger.debug(f"Starting {name}")
+                    component.start()
+            
+            self.running = True
+            self.logger.info("Pathlight system started successfully")
+            
+            # Main processing loop
+            self._main_loop()
+            
+        except Exception as e:
+            self.logger.error(f"Error in main loop: {e}")
+            self.stop()
+    
+    def _main_loop(self):
+        """Main processing loop"""
+        self.logger.info("Entering main processing loop...")
+        
+        while self.running:
+            try:
+                                    # Get stereo camera frames
+                    left_frame, right_frame = self.components['camera'].get_stereo_frames()
+                    if left_frame is None or right_frame is None:
+                        continue
+
+                    # Stereo vision depth computation
+                    stereo_result = self.components['stereo_vision'].compute_depth(left_frame, right_frame)
+                    depth_map = stereo_result['depth_map']
+
+                    # 3D obstacle detection
+                    obstacles_3d = self.components['stereo_vision'].detect_obstacles_3d(depth_map)
+
+                    # Object detection (2D)
+                    detections = self.components['object_detector'].detect(left_frame)
+
+                    # Face recognition
+                    faces = self.components['face_recognizer'].recognize(left_frame)
+
+                    # Enhanced path planning with 3D information
+                    path_3d = self.components['stereo_vision'].calculate_safe_path_3d(obstacles_3d)
+                    path_2d = self.components['path_planner'].plan_path(detections)
+                    
+                    # Combine 2D and 3D path planning
+                    path = self._combine_path_plans(path_2d, path_3d)
+                
+                # Update LED display
+                self.components['leds'].display_direction(path['direction'])
+                
+                # Process voice input
+                voice_input = self.components['voice_processor'].listen()
+                if voice_input:
+                    response = self.components['ai_assistant'].process_query(voice_input)
+                    self.components['audio_manager'].speak(response)
+                
+                # Update memory
+                self.components['memory_manager'].update(faces, detections)
+                
+            except KeyboardInterrupt:
+                break
+            except Exception as e:
+                self.logger.error(f"Error in main loop: {e}")
+                continue
+    
+    def stop(self):
+        """Stop the Pathlight system"""
+        if not self.running:
+            return
+        
+        self.logger.info("Stopping Pathlight system...")
+        self.running = False
+        
+        # Stop all components
+        for name, component in self.components.items():
+            if hasattr(component, 'stop'):
+                try:
+                    self.logger.debug(f"Stopping {name}")
+                    component.stop()
+                except Exception as e:
+                    self.logger.error(f"Error stopping {name}: {e}")
+        
+                        self.logger.info("Pathlight system stopped")
+
+    def _combine_path_plans(self, path_2d: Dict[str, Any], path_3d: Dict[str, Any]) -> Dict[str, Any]:
+        """Combine 2D and 3D path planning results for optimal navigation"""
+        try:
+            # Prioritize 3D information when available
+            if path_3d['confidence'] > 0.5:
+                # Use 3D path planning as primary
+                combined_path = {
+                    'direction': self._angle_to_direction(path_3d['safe_direction']),
+                    'confidence': path_3d['confidence'],
+                    'safety_level': 'high' if path_3d['confidence'] > 0.8 else 'medium',
+                    'closest_obstacle': path_3d['closest_obstacle'],
+                    'obstacle_count': path_3d['obstacle_count'],
+                    'instructions': self._generate_3d_instructions(path_3d),
+                    'method': '3d_stereo'
+                }
+            else:
+                # Fall back to 2D path planning
+                combined_path = path_2d.copy()
+                combined_path['method'] = '2d_fallback'
+            
+            # Add safety warnings
+            if path_3d['closest_obstacle'] and path_3d['closest_obstacle']['distance'] < 1.0:
+                combined_path['safety_level'] = 'danger'
+                combined_path['instructions'] = f"EMERGENCY: Obstacle at {path_3d['closest_obstacle']['distance']:.1f}m - STOP IMMEDIATELY"
+            
+            return combined_path
+            
+        except Exception as e:
+            self.logger.error(f"Error combining path plans: {e}")
+            return path_2d  # Fall back to 2D planning
+    
+    def _angle_to_direction(self, angle: float) -> str:
+        """Convert angle to direction string"""
+        # Convert radians to degrees and normalize
+        angle_deg = np.degrees(angle) % 360
+        
+        if -45 <= angle_deg <= 45:
+            return 'forward'
+        elif 45 < angle_deg <= 135:
+            return 'left'
+        elif 135 < angle_deg <= 225:
+            return 'backward'
+        elif 225 < angle_deg <= 315:
+            return 'right'
+        else:
+            return 'forward'
+    
+    def _generate_3d_instructions(self, path_3d: Dict[str, Any]) -> str:
+        """Generate navigation instructions from 3D path planning"""
+        if path_3d['closest_obstacle']:
+            obstacle = path_3d['closest_obstacle']
+            distance = obstacle['distance']
+            height = obstacle['height']
+            
+            if distance < 0.5:
+                return f"EMERGENCY STOP! Obstacle at {distance:.1f}m"
+            elif distance < 1.0:
+                return f"CAUTION: {height:.1f}m obstacle at {distance:.1f}m - proceed slowly"
+            else:
+                return f"Clear path ahead. Closest obstacle at {distance:.1f}m"
+        else:
+            return "Clear path ahead"
+
+
+def main():
+    """Main entry point"""
+    parser = argparse.ArgumentParser(description='Pathlight AI Navigation Assistant')
+    parser.add_argument('--config', '-c', default='config/config.yaml',
+                       help='Path to configuration file')
+    parser.add_argument('--debug', '-d', action='store_true',
+                       help='Enable debug mode')
+    
+    args = parser.parse_args()
+    
+    # Create and start Pathlight system
+    try:
+        pathlight = PathlightSystem(args.config)
+        pathlight.start()
+    except Exception as e:
+        print(f"Failed to start Pathlight: {e}")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main() 
