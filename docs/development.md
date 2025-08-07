@@ -60,8 +60,8 @@ pathlight/
 
 2. **Create virtual environment**:
    ```bash
-   python3 -m venv pathlight_env
-   source pathlight_env/bin/activate
+   python3 -m venv cursorPathlight_env
+source cursorPathlight_env/bin/activate
    ```
 
 3. **Install dependencies**:
@@ -331,13 +331,13 @@ v4l2-ctl --list-devices
 ### Production Setup
 1. **Configure system service**:
    ```bash
-   sudo systemctl enable pathlight.service
-   sudo systemctl start pathlight.service
+   sudo systemctl enable cursorPathlight.service
+sudo systemctl start cursorPathlight.service
    ```
 
 2. **Monitor logs**:
    ```bash
-   sudo journalctl -u pathlight.service -f
+   sudo journalctl -u cursorPathlight.service -f
    ```
 
 3. **Auto-restart on failure**:
@@ -346,12 +346,12 @@ v4l2-ctl --list-devices
 ### Backup and Recovery
 1. **Database backup**:
    ```bash
-   cp ~/pathlight/data/pathlight.db ~/pathlight/data/pathlight.db.backup
+   cp ~/cursorPathlight/data/cursorPathlight.db ~/cursorPathlight/data/cursorPathlight.db.backup
    ```
 
 2. **Configuration backup**:
    ```bash
-   cp ~/pathlight/config/config.yaml ~/pathlight/config/config.yaml.backup
+   cp ~/cursorPathlight/config/config.yaml ~/cursorPathlight/config/config.yaml.backup
    ```
 
 ## Troubleshooting
@@ -447,7 +447,7 @@ gpio readall
 
 ### Getting Help
 - Check the troubleshooting section
-- Review logs in `logs/pathlight.log`
+- Review logs in `logs/cursorPathlight.log`
 - Search existing issues
 - Create new issue with detailed information
 

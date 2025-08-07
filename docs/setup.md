@@ -42,12 +42,12 @@ nvidia-smi  # Verify CUDA installation
 ### 2.1 Create Virtual Environment
 ```bash
 # Create project directory
-mkdir -p ~/pathlight
-cd ~/pathlight
+mkdir -p ~/cursorPathlight
+cd ~/cursorPathlight
 
 # Create virtual environment
-python3 -m venv pathlight_env
-source pathlight_env/bin/activate
+python3 -m venv cursorPathlight_env
+source cursorPathlight_env/bin/activate
 
 # Upgrade pip
 pip install --upgrade pip
@@ -111,15 +111,15 @@ pip install pyaudio pyttsx3 speechrecognition
 ### 4.1 Clone/Transfer Project
 ```bash
 # If using git
-git clone <repository-url> ~/pathlight
+git clone <repository-url> ~/cursorPathlight
 
 # Or transfer files from your Mac
-# Copy the pathlight_project folder to ~/pathlight on Jetson
+# Copy the pathlight_project folder to ~/cursorPathlight on Jetson
 ```
 
 ### 4.2 Install Project Dependencies
 ```bash
-cd ~/pathlight
+cd ~/cursorPathlight
 pip install -r requirements.txt
 ```
 
@@ -141,7 +141,7 @@ sudo raspi-config  # If using Raspberry Pi GPIO
 # Navigate to Interface Options > I2C > Enable
 
 # Set up auto-start service
-sudo nano /etc/systemd/system/pathlight.service
+sudo nano /etc/systemd/system/cursorPathlight.service
 ```
 
 ### 5.2 Performance Optimization
