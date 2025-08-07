@@ -357,7 +357,7 @@ def main():
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         handlers=[
-            logging.FileHandler('/home/nvidia/pathlight/logs/startup.log'),
+            logging.FileHandler('/home/nvidia/cursorPathlight/logs/startup.log'),
             logging.StreamHandler()
         ]
     )

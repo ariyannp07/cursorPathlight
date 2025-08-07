@@ -11,7 +11,7 @@ echo "=========================================="
 # Configuration
 SOURCE_DIR="/Users/ariyanp/pathlight_project"
 MICROSD_MOUNT_POINT="/Volumes/JETSON_SSD"
-MICROSD_TARGET_DIR="/home/nvidia/pathlight"
+MICROSD_TARGET_DIR="/home/nvidia/cursorPathlight"
 
 # Colors for output
 RED='\033[0;31m'
@@ -263,7 +263,7 @@ fi
 
 # Set up Python virtual environment
 print_status "Setting up Python virtual environment..."
-cd /home/nvidia/pathlight
+cd /home/nvidia/cursorPathlight
 python3 -m venv venv
 source venv/bin/activate
 
@@ -281,19 +281,19 @@ mkdir -p data/faces data/stereo_calibration
 
 # Set up systemd service
 print_status "Setting up systemd service..."
-sudo cp scripts/pathlight.service /etc/systemd/system/
+sudo cp scripts/cursorPathlight.service /etc/systemd/system/
 sudo systemctl daemon-reload
-sudo systemctl enable pathlight.service
+sudo systemctl enable cursorPathlight.service
 
 # Set permissions
 print_status "Setting file permissions..."
-sudo chown -R nvidia:nvidia /home/nvidia/pathlight
+sudo chown -R nvidia:nvidia /home/nvidia/cursorPathlight
 chmod +x scripts/*.py scripts/*.sh
 
 print_success "Jetson setup completed!"
-print_status "To start Pathlight: sudo systemctl start pathlight"
-print_status "To check status: sudo systemctl status pathlight"
-print_status "To view logs: sudo journalctl -u pathlight -f"
+print_status "To start Pathlight: sudo systemctl start cursorPathlight"
+print_status "To check status: sudo systemctl status cursorPathlight"
+print_status "To view logs: sudo journalctl -u cursorPathlight -f"
 
 JETSON_EOF
     
@@ -317,20 +317,20 @@ create_jetson_readme() {
 
 2. **Run Setup Script**
    ```bash
-   cd /home/nvidia/pathlight
-   chmod +x setup_jetson.sh
-   ./setup_jetson.sh
+   cd /home/nvidia/cursorPathlight
+chmod +x setup_jetson.sh
+./setup_jetson.sh
    ```
 
 3. **Start Pathlight**
    ```bash
-   sudo systemctl start pathlight
+   sudo systemctl start cursorPathlight
    ```
 
 4. **Check Status**
    ```bash
-   sudo systemctl status pathlight
-   sudo journalctl -u pathlight -f
+   sudo systemctl status cursorPathlight
+sudo journalctl -u cursorPathlight -f
    ```
 
 ## Hardware Connections
