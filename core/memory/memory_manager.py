@@ -20,7 +20,7 @@ class MemoryManager:
         self.config = config
         
         # Database configuration
-        self.db_path = config.get('path', 'data/pathlight.db')
+        self.db_path = config.get('path', 'data/cursorPathlight.db')
         self.backup_interval = config.get('backup_interval', 3600)
         
         # Initialize database
