@@ -11,11 +11,11 @@ from typing import Dict, Any, Optional, List
 import json
 
 try:
-    import RPi.GPIO as GPIO
+    import Jetson.GPIO as GPIO
     GPIO_AVAILABLE = True
 except ImportError:
     GPIO_AVAILABLE = False
-    logging.warning("RPi.GPIO not available, using simulated GPIO")
+    logging.warning("Jetson.GPIO not available, using simulated GPIO")
 
 
 class MicrocontrollerManager:

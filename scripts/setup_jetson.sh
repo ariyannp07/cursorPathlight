@@ -134,7 +134,6 @@ install_system_deps() {
         libhdf5-dev \
         libhdf5-serial-dev \
         libhdf5-103 \
-        qt5-default \
         qtbase5-dev \
         qtchooser \
         qt5-qmake \
@@ -143,7 +142,8 @@ install_system_deps() {
         libqt5widgets5 \
         libqt5core5a \
         libqt5opengl5 \
-        libqt5opengl5-dev \        python3-pyqt5 \
+        libqt5opengl5-dev \
+        python3-pyqt5 \
         libgtk-3-dev \
         libcanberra-gtk-module \
         libcanberra-gtk3-module
@@ -160,8 +160,8 @@ setup_python_env() {
     cd ~/cursorPathlight
     
     # Create virtual environment
-    python3 -m venv pathlight_env
-    source pathlight_env/bin/activate
+    python3 -m venv cursorPathlight_env
+    source cursorPathlight_env/bin/activate
     
     # Upgrade pip
     pip install --upgrade pip setuptools wheel
@@ -173,7 +173,7 @@ setup_python_env() {
 install_pytorch() {
     print_status "Installing PyTorch for Jetson..."
     
-    source ~/cursorPathlight/pathlight_env/bin/activate
+    source ~/cursorPathlight/cursorPathlight_env/bin/activate
     
     # Install PyTorch with CUDA support for Jetson
     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
@@ -185,7 +185,7 @@ install_pytorch() {
 install_python_deps() {
     print_status "Installing Python dependencies..."
     
-    source ~/cursorPathlight/pathlight_env/bin/activate
+    source ~/cursorPathlight/cursorPathlight_env/bin/activate
     
     # Install core dependencies
     pip install numpy pillow matplotlib scipy
@@ -258,7 +258,7 @@ setup_services() {
     fi
     
     # Setup auto-start service
-    sudo tee /etc/systemd/system/pathlight.service > /dev/null <<EOF
+    sudo tee /etc/systemd/system/cursorPathlight.service > /dev/null <<EOF
 [Unit]
 Description=Pathlight AI Navigation Assistant
 After=network.target
@@ -267,8 +267,8 @@ After=network.target
 Type=simple
 User=nvidia
 WorkingDirectory=/home/nvidia/cursorPathlight
-Environment=PATH=/home/nvidia/cursorPathlight/pathlight_env/bin
-ExecStart=/home/nvidia/cursorPathlight/pathlight_env/bin/python main.py
+Environment=PATH=/home/nvidia/cursorPathlight/cursorPathlight_env/bin
+ExecStart=/home/nvidia/cursorPathlight/cursorPathlight_env/bin/python main.py
 Restart=always
 RestartSec=10
 
@@ -277,7 +277,7 @@ WantedBy=multi-user.target
 EOF
     
     # Enable service
-    sudo systemctl enable pathlight.service
+    sudo systemctl enable cursorPathlight.service
     print_success "System service configured"
 }
 
@@ -316,7 +316,7 @@ EOF
 test_installation() {
     print_status "Testing installation..."
     
-    source ~/cursorPathlight/pathlight_env/bin/activate
+    source ~/cursorPathlight/cursorPathlight_env/bin/activate
     
     # Test Python imports
     python3 -c "
@@ -376,7 +376,7 @@ main() {
     echo "1. Copy your project files to ~/cursorPathlight/"
     echo "2. Edit config/config.yaml with your settings"
     echo "3. Add your API keys to the configuration"
-    echo "4. Test the system: cd ~/cursorPathlight && source pathlight_env/bin/activate && python main.py"
+    echo "4. Test the system: cd ~/cursorPathlight && source cursorPathlight_env/bin/activate && python main.py"
     echo "5. Start the service: sudo systemctl start pathlight"
     echo ""
     echo "For more information, see docs/setup.md"

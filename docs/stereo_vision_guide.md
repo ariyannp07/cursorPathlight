@@ -67,8 +67,8 @@ sudo apt install -y \
 ### 2. Python Environment
 ```bash
 # Create virtual environment
-python3 -m venv pathlight_env
-source pathlight_env/bin/activate
+python3 -m venv cursorPathlight_env
+source cursorPathlight_env/bin/activate
 
 # Install Python dependencies
 pip install --upgrade pip setuptools wheel
@@ -112,7 +112,7 @@ else:
 #### 2. Run Calibration Tool
 ```bash
 # Activate environment
-source pathlight_env/bin/activate
+source cursorPathlight_env/bin/activate
 
 # Run calibration
 python scripts/stereo_calibration.py

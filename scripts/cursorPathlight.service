@@ -7,9 +7,9 @@ Wants=network.target
 Type=simple
 User=nvidia
 Group=nvidia
-WorkingDirectory=/home/nvidia/pathlight
-Environment=PYTHONPATH=/home/nvidia/pathlight
-ExecStart=/usr/bin/python3 /home/nvidia/pathlight/scripts/autonomous_startup.py
+WorkingDirectory=/home/nvidia/cursorPathlight
+Environment=PYTHONPATH=/home/nvidia/cursorPathlight
+ExecStart=/usr/bin/python3 /home/nvidia/cursorPathlight/scripts/autonomous_startup.py
 Restart=always
 RestartSec=10
 StandardOutput=journal
@@ -20,7 +20,7 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/home/nvidia/pathlight/data /home/nvidia/pathlight/logs
+ReadWritePaths=/home/nvidia/cursorPathlight/data /home/nvidia/cursorPathlight/logs
 
 # Resource limits
 LimitNOFILE=65536

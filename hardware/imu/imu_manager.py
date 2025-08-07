@@ -17,11 +17,11 @@ except ImportError:
     logging.warning("smbus2 not available, IMU will use simulated data")
 
 try:
-    import RPi.GPIO as GPIO
+    import Jetson.GPIO as GPIO
     GPIO_AVAILABLE = True
 except ImportError:
     GPIO_AVAILABLE = False
-    logging.warning("RPi.GPIO not available, using simulated GPIO")
+    logging.warning("Jetson.GPIO not available, using simulated GPIO")
 
 
 class IMUManager:

@@ -9,7 +9,13 @@ import threading
 from typing import Dict, Any, List, Optional
 from enum import Enum
 import smbus2
-import RPi.GPIO as GPIO
+try:
+    import Jetson.GPIO as GPIO
+    GPIO_AVAILABLE = True
+except ImportError:
+    GPIO_AVAILABLE = False
+    import logging
+    logging.warning("Jetson.GPIO not available, using simulated GPIO")
 
 
 class LEDPattern(Enum):

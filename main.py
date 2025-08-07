@@ -68,7 +68,7 @@ class PathlightSystem:
     def _setup_logging(self):
         """Setup logging configuration"""
         log_config = self.config.get('logging', {})
-        log_file = log_config.get('file', 'logs/pathlight.log')
+        log_file = log_config.get('file', 'logs/cursorPathlight.log')
         log_level = getattr(logging, self.config.get('system', {}).get('log_level', 'INFO'))
         
         # Create logs directory

@@ -20,8 +20,9 @@ librosa>=0.10.0             # Audio analysis
 # AI Assistant and Language Processing
 openai>=1.0.0               # OpenAI API for AI assistant
 transformers>=4.30.0        # Hugging Face transformers
-torch>=2.0.0                # PyTorch for deep learning
-torchvision>=0.15.0         # Computer vision for PyTorch
+# torch>=2.0.0                # PyTorch for deep learning (installed separately for Jetson)
+# torchvision>=0.15.0         # Computer vision for PyTorch (installed separately for Jetson)
+# torchaudio>=2.0.0           # Audio for PyTorch (installed separately for Jetson)
 
 # Navigation and Path Planning
 networkx>=3.1               # Graph algorithms for path planning
@@ -29,7 +30,6 @@ scipy>=1.11.0               # Scientific computing
 matplotlib>=3.7.0           # Plotting and visualization
 
 # Hardware Control
-RPi.GPIO>=0.7.1             # GPIO control (for LED array)
 smbus2>=0.4.2               # I2C communication
 spidev>=3.6                 # SPI communication
 
@@ -40,8 +40,8 @@ fastapi>=0.100.0            # Web API framework
 uvicorn>=0.23.0             # ASGI server
 
 # Database and Storage
-sqlite3                     # Built-in Python module
-pickle5>=0.0.11             # Python object serialization
+# sqlite3                     # Built-in Python module
+# pickle                     # Built-in Python module
 
 # Utilities
 python-dotenv>=1.0.0        # Environment variable management

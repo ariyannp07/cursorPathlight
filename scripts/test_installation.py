@@ -32,7 +32,7 @@ def test_imports():
         'sqlite3',
         'pyaudio',
         'smbus2',
-        'RPi.GPIO'
+        # 'RPi.GPIO'  # Not needed for Jetson
     ]
     
     failed_imports = []
