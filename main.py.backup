@@ -22,12 +22,11 @@ from core.vision.object_detector import ObjectDetector
 from core.vision.face_recognizer import FaceRecognizer
 from core.vision.stereo_vision import StereoVision
 from core.navigation.path_planner import PathPlanner
-from hardware.audio.audio_manager import AudioManager
+from core.audio.audio_manager import AudioManager
 from core.memory.memory_manager import MemoryManager
 from hardware.camera.camera_manager import CameraManager
 from hardware.leds.led_controller import LEDController
-from hardware.imu.imu_manager import IMUManager
-from hardware.microcontroller.microcontroller_manager import MicrocontrollerManager# from hardware.audio.audio_io import AudioIO
+from hardware.audio.audio_io import AudioIO
 from ai.assistant.ai_assistant import AIAssistant
 from ai.voice.voice_processor import VoiceProcessor
 
@@ -68,7 +67,7 @@ class PathlightSystem:
     def _setup_logging(self):
         """Setup logging configuration"""
         log_config = self.config.get('logging', {})
-        log_file = log_config.get('file', 'logs/cursorPathlight.log')
+        log_file = log_config.get('file', 'logs/pathlight.log')
         log_level = getattr(logging, self.config.get('system', {}).get('log_level', 'INFO'))
         
         # Create logs directory

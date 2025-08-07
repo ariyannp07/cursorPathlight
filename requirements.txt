@@ -1,0 +1,61 @@
+# Core AI and Computer Vision
+ultralytics>=8.0.0          # YOLOv8 for object detection
+opencv-python>=4.8.0        # Computer vision library
+opencv-contrib-python>=4.8.0 # OpenCV contrib modules (for stereo vision)
+opencv-python-headless>=4.8.0 # Headless OpenCV for servers
+numpy>=1.24.0               # Numerical computing
+Pillow>=10.0.0              # Image processing
+
+# Face Recognition and Memory
+face-recognition>=1.3.0     # Face detection and recognition
+dlib>=19.24.0               # Machine learning library for face recognition
+scikit-learn>=1.3.0         # Machine learning utilities
+
+# Audio Processing
+pyttsx3>=2.90               # Text-to-speech
+speechrecognition>=3.10.0   # Speech recognition
+pyaudio>=0.2.11             # Audio I/O
+librosa>=0.10.0             # Audio analysis
+
+# AI Assistant and Language Processing
+openai>=1.0.0               # OpenAI API for AI assistant
+transformers>=4.30.0        # Hugging Face transformers
+torch>=2.0.0                # PyTorch for deep learning
+torchvision>=0.15.0         # Computer vision for PyTorch
+
+# Navigation and Path Planning
+networkx>=3.1               # Graph algorithms for path planning
+scipy>=1.11.0               # Scientific computing
+matplotlib>=3.7.0           # Plotting and visualization
+
+# Hardware Control
+RPi.GPIO>=0.7.1             # GPIO control (for LED array)
+smbus2>=0.4.2               # I2C communication
+spidev>=3.6                 # SPI communication
+
+# Web and API Integration
+requests>=2.31.0            # HTTP requests
+googlemaps>=4.10.0          # Google Maps API
+fastapi>=0.100.0            # Web API framework
+uvicorn>=0.23.0             # ASGI server
+
+# Database and Storage
+sqlite3                     # Built-in Python module
+pickle5>=0.0.11             # Python object serialization
+
+# Utilities
+python-dotenv>=1.0.0        # Environment variable management
+pyyaml>=6.0                 # YAML configuration files
+click>=8.1.0                # Command line interface
+tqdm>=4.65.0                # Progress bars
+loguru>=0.7.0               # Advanced logging
+
+# Testing
+pytest>=7.4.0               # Testing framework
+pytest-cov>=4.1.0           # Coverage testing
+pytest-asyncio>=0.21.0      # Async testing support
+
+# Development
+black>=23.0.0               # Code formatting
+flake8>=6.0.0               # Code linting
+mypy>=1.5.0                 # Type checking 

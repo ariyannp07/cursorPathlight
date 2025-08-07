@@ -199,17 +199,17 @@ dpkg -l | grep opencv
 #### **2.1 Transfer Project Files**
 ```bash
 # From your Mac, transfer files to Jetson:
-scp -r pathlight_project/ nvidia@[JETSON_IP]:~/pathlight/
+scp -r pathlight_project/ nvidia@[JETSON_IP]:~/cursorPathlight/
 
 # On Jetson, verify transfer:
-cd ~/pathlight
+cd ~/cursorPathlight
 ls -la
 ```
 
 #### **2.2 Install System Dependencies**
 ```bash
 # Run the automated setup script:
-cd ~/pathlight
+cd ~/cursorPathlight
 chmod +x scripts/setup_jetson.sh
 ./scripts/setup_jetson.sh
 
@@ -224,7 +224,7 @@ chmod +x scripts/setup_jetson.sh
 #### **2.3 Verify Installation**
 ```bash
 # Activate virtual environment:
-source ~/pathlight/pathlight_env/bin/activate
+source ~/cursorPathlight/cursorPathlight_env/bin/activate
 
 # Test OpenCV installation:
 python3 -c "

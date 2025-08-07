@@ -69,14 +69,14 @@ pathlight_project/
 ### Step 2: Transfer Project Files
 1. **Copy the entire project**:
    ```bash
-   cp -r /Users/ariyanp/pathlight_project ~/pathlight
+   cp -r /Users/ariyanp/pathlight_project ~/cursorPathlight
    ```
 
 2. **Set proper permissions**:
    ```bash
-   chmod +x ~/pathlight/scripts/*.sh
-   chmod +x ~/pathlight/scripts/*.py
-   chmod +x ~/pathlight/main.py
+   chmod +x ~/cursorPathlight/scripts/*.sh
+chmod +x ~/cursorPathlight/scripts/*.py
+chmod +x ~/cursorPathlight/main.py
    ```
 
 ### Step 3: Safely Disconnect
@@ -97,7 +97,7 @@ pathlight_project/
 
 2. **Navigate to project directory**:
    ```bash
-   cd ~/pathlight
+   cd ~/cursorPathlight
    ```
 
 3. **Run the automated setup script**:
@@ -237,7 +237,7 @@ arecord -l
 aplay -l
 
 # View logs
-tail -f logs/pathlight.log
+tail -f logs/cursorPathlight.log
 ```
 
 ## Next Steps
@@ -274,8 +274,8 @@ tail -f logs/pathlight.log
 - Individual component tests in each module
 
 ### Logs
-- System logs: `logs/pathlight.log`
-- Service logs: `sudo journalctl -u pathlight.service`
+- System logs: `logs/cursorPathlight.log`
+- Service logs: `sudo journalctl -u cursorPathlight.service`
 
 ## Success Criteria
 The system is successfully set up when:

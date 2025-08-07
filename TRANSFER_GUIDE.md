@@ -13,8 +13,8 @@
 3. **On Jetson, run these commands:**
    ```bash
    # Create project directory
-   sudo mkdir -p /home/nvidia/pathlight
-   cd /home/nvidia/pathlight
+   sudo mkdir -p /home/nvidia/cursorPathlight
+cd /home/nvidia/cursorPathlight
    
    # Download project from Mac (if connected via network)
    # OR copy from USB drive
@@ -52,7 +52,7 @@
 ✅ **Ready-to-run scripts:**
 - `setup_jetson.sh` - Complete Jetson setup
 - `autonomous_startup.py` - Automatic startup
-- `pathlight.service` - Systemd service
+- `cursorPathlight.service` - Systemd service
 - All test and calibration scripts
 
 ✅ **Documentation:**
@@ -69,7 +69,7 @@
 
 2. **Run setup script:**
    ```bash
-   cd /home/nvidia/pathlight
+   cd /home/nvidia/cursorPathlight
    chmod +x setup_jetson.sh
    ./setup_jetson.sh
    ```

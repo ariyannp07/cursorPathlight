@@ -35,15 +35,15 @@ ls -la /dev/video*
 ### **Installation**
 ```bash
 # Transfer files
-scp -r pathlight_project/ nvidia@[JETSON_IP]:~/pathlight/
+scp -r pathlight_project/ nvidia@[JETSON_IP]:~/cursorPathlight/
 
 # Run setup
-cd ~/pathlight
+cd ~/cursorPathlight
 chmod +x scripts/setup_jetson.sh
 ./scripts/setup_jetson.sh
 
 # Activate environment
-source ~/pathlight/pathlight_env/bin/activate
+source ~/cursorPathlight/cursorPathlight_env/bin/activate
 ```
 
 ### **Testing**

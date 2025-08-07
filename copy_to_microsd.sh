@@ -6,7 +6,7 @@ echo "Pathlight microSD Copy Script"
 echo "=========================================="
 
 MICROSD_PATH="/Volumes/JETSON_SSD"
-TARGET_DIR="$MICROSD_PATH/home/nvidia/pathlight"
+TARGET_DIR="$MICROSD_PATH/home/nvidia/cursorPathlight"
 
 # Check if microSD is writable
 if [ ! -w "$MICROSD_PATH" ]; then
@@ -54,7 +54,7 @@ echo "Next steps:"
 echo "1. Safely eject microSD from Mac"
 echo "2. Insert microSD into Jetson"
 echo "3. On Jetson, run:"
-echo "   cd /home/nvidia/pathlight"
+echo "   cd /home/nvidia/cursorPathlight"
 echo "   chmod +x setup_jetson.sh"
 echo "   ./setup_jetson.sh"
 echo "   sudo systemctl start pathlight"
