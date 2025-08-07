@@ -7,8 +7,8 @@ system:
   version: "1.0.0"
   debug: true
   log_level: "INFO"
-  data_dir: "/home/nvidia/pathlight/data"
-  models_dir: "/home/nvidia/pathlight/models"
+  data_dir: "/home/nvidia/cursorPathlight/data"
+  models_dir: "/home/nvidia/cursorPathlight/models"
   autonomous_startup: true
   battery_monitoring: true
 
@@ -50,7 +50,7 @@ face_recognition:
   tolerance: 0.6
   model: "hog"  # hog, cnn
   upsample: 1
-  database_path: "/home/nvidia/pathlight/data/faces"
+  database_path: "/home/nvidia/cursorPathlight/data/faces"
   known_faces_file: "known_faces.pkl"
 
 # Navigation Configuration
@@ -131,7 +131,7 @@ google_maps:
 # Memory and Database Configuration
 database:
   type: "sqlite"
-  path: "/home/nvidia/pathlight/data/pathlight.db"
+  path: "/home/nvidia/cursorPathlight/data/cursorPathlight.db"
   backup_interval: 3600  # seconds
 
 # Performance Configuration
@@ -153,7 +153,7 @@ safety:
 
 # Logging Configuration
 logging:
-  file: "/home/nvidia/pathlight/logs/pathlight.log"
+  file: "/home/nvidia/cursorPathlight/logs/cursorPathlight.log"
   max_size: 10485760  # 10MB
   backup_count: 5
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
