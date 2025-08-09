@@ -122,14 +122,16 @@ install_system_deps() {
         libcusparse-12-6 \
         libcusolver-12-6
     
-    # Audio dependencies
+    # Audio dependencies (for PyAudio, librosa, TTS)
     sudo apt install -y \
         portaudio19-dev \
-        python3-pyaudio \
-        espeak \
-        espeak-data \
+        libsndfile1 \
+        libsndfile1-dev \
+        espeak-ng \
+        espeak-ng-data \
         pulseaudio \
-        pulseaudio-utils
+        pulseaudio-utils \
+        alsa-utils
     
     # Camera and video dependencies (including IMX219 CSI camera support)
     sudo apt install -y \
@@ -263,19 +265,18 @@ install_python_deps() {
     # Build OpenCV from source with CUDA 12.6 support
     print_status "Building OpenCV 4.10.0 from source with CUDA 12.6, GStreamer, and V4L2..."
     
-    # Install OpenCV build dependencies
+    # Install OpenCV build dependencies (GPT-5 verified for CUDA/GStreamer)
     apt-get update && apt-get install -y --no-install-recommends \
-        build-essential cmake git pkg-config \
-        libjpeg-dev libtiff5-dev libpng-dev \
-        libavcodec-dev libavformat-dev libswscale-dev \
-        libgtk2.0-dev libcanberra-gtk-module \
-        libxvidcore-dev libx264-dev libgtk-3-dev \
-        libtbb2 libtbb-dev libdc1394-22-dev libv4l-dev \
+        build-essential cmake git pkg-config python3-dev \
+        libjpeg-dev libpng-dev libtiff-dev libopenexr-dev \
+        libavcodec-dev libavformat-dev libswscale-dev libv4l-dev v4l-utils \
+        libxvidcore-dev libx264-dev libgtk-3-dev libcanberra-gtk3-module \
+        libtbb2 libtbb-dev libdc1394-22-dev \
         libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
         libvorbis-dev libxine2-dev libtesseract-dev \
         libfaac-dev libmp3lame-dev libtheora-dev \
         libpostproc-dev libopencore-amrnb-dev libopencore-amrwb-dev \
-        libopenblas-dev libatlas-base-dev gfortran
+        libeigen3-dev libopenblas-dev liblapack-dev gfortran
     
     # Clone and build OpenCV with CUDA
     cd /tmp
@@ -283,6 +284,7 @@ install_python_deps() {
     git clone --branch 4.10.0 --depth 1 https://github.com/opencv/opencv_contrib.git
     cd opencv && mkdir build && cd build
     
+    # Configure OpenCV with CUDA 12.6, GStreamer, and all optimizations
     cmake -D CMAKE_BUILD_TYPE=RELEASE \
         -D CMAKE_INSTALL_PREFIX=/usr/local \
         -D OPENCV_EXTRA_MODULES_PATH=/tmp/opencv_contrib/modules \
@@ -295,11 +297,15 @@ install_python_deps() {
         -D CUDA_FAST_MATH=ON \
         -D WITH_CUBLAS=ON \
         -D WITH_LIBV4L=ON \
+        -D WITH_V4L=ON \
         -D WITH_GSTREAMER=ON \
         -D WITH_GSTREAMER_0_10=OFF \
+        -D WITH_OPENGL=ON \
         -D BUILD_opencv_python3=ON \
         -D OPENCV_GENERATE_PKGCONFIG=ON \
-        -D BUILD_EXAMPLES=OFF ..
+        -D BUILD_EXAMPLES=OFF \
+        -D BUILD_TESTS=OFF \
+        -D BUILD_PERF_TESTS=OFF ..
     
     make -j$(nproc)
     make install

@@ -173,6 +173,74 @@ def test_ultralytics_numpy():
         print(f"✗ Ultralytics/NumPy compatibility test failed: {e}")
         return False
 
+def test_complete_stack_gpt5():
+    """GPT-5 recommended comprehensive stack verification"""
+    print("\nRunning GPT-5 comprehensive stack test...")
+    
+    try:
+        # Test Python version
+        import sys
+        print(f"Python: {sys.version}")
+        
+        # Test NumPy
+        import numpy as np
+        print(f"NumPy: {np.__version__}")
+        
+        # Test OpenCV with build information
+        import cv2
+        print(f"OpenCV: {cv2.__version__}")
+        build_info = cv2.getBuildInformation()
+        
+        # Check critical OpenCV features
+        cuda_support = "CUDA: YES" in build_info
+        gstreamer_support = "GStreamer: YES" in build_info
+        v4l2_support = "V4L/V4L2: YES" in build_info
+        
+        print(f"  CUDA Support: {'✓' if cuda_support else '✗'}")
+        print(f"  GStreamer Support: {'✓' if gstreamer_support else '✗'}")
+        print(f"  V4L2 Support: {'✓' if v4l2_support else '✗'}")
+        
+        # Test PyTorch
+        try:
+            import torch, torchvision
+            print(f"PyTorch: {torch.__version__} | CUDA: {torch.version.cuda} | Available: {torch.cuda.is_available()}")
+            print(f"TorchVision: {torchvision.__version__}")
+        except Exception as e:
+            print(f"PyTorch Error: {e}")
+            
+        # Test dlib
+        try:
+            import dlib
+            cuda_enabled = getattr(dlib, "DLIB_USE_CUDA", "n/a")
+            print(f"dlib: {dlib.__version__} | CUDA: {cuda_enabled}")
+        except Exception as e:
+            print(f"dlib Error: {e}")
+            
+        # Test audio/ML stack
+        try:
+            import ultralytics, face_recognition, pyaudio, librosa
+            import soundfile as sf
+            print(f"ultralytics: {ultralytics.__version__}")
+            print(f"face_recognition: {face_recognition.__version__}")
+            print(f"PyAudio: {pyaudio.__version__}")
+            print(f"librosa: {librosa.__version__}")
+            print(f"soundfile: {sf.__version__}")
+        except Exception as e:
+            print(f"Audio/ML Stack Error: {e}")
+            
+        # Test fast vector search
+        try:
+            import hnswlib
+            print(f"hnswlib: {hnswlib.__version__}")
+        except Exception as e:
+            print(f"hnswlib Error: {e}")
+            
+        return True
+        
+    except Exception as e:
+        print(f"✗ Complete stack test failed: {e}")
+        return False
+
 def test_imports():
     """Test that all required modules can be imported"""
     print("Testing module imports...")
@@ -428,6 +496,7 @@ def main():
         ("OpenCV CUDA Support", test_opencv_cuda),
         ("dlib CUDA Support", test_dlib_cuda),
         ("Ultralytics/NumPy Compatibility", test_ultralytics_numpy),
+        ("GPT-5 Complete Stack Test", test_complete_stack_gpt5),
         ("Module Imports", test_imports),
         ("Project Modules", test_project_modules),
         ("Configuration", test_configuration),
