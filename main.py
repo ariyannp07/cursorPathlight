@@ -14,13 +14,14 @@ import numpy as np
 from pathlib import Path
 from typing import Dict, Any
 
-# CPU optimization for Jetson
+# Performance optimization for Jetson with CUDA support
 os.environ['OMP_NUM_THREADS'] = str(max(1, os.cpu_count() // 2))  # Use half of available CPU cores
 os.environ['MKL_NUM_THREADS'] = str(max(1, os.cpu_count() // 2))
 os.environ['OPENBLAS_NUM_THREADS'] = str(max(1, os.cpu_count() // 2))
 
-# Force CPU-only operation for PyTorch (if imported later)
-os.environ['CUDA_VISIBLE_DEVICES'] = ''
+# CUDA optimizations for PyTorch
+os.environ['CUDA_LAUNCH_BLOCKING'] = '0'  # Enable async CUDA operations
+os.environ['TORCH_CUDNN_V8_API_ENABLED'] = '1'  # Enable cuDNN v8 optimizations
 
 # Add project root to path
 project_root = Path(__file__).parent

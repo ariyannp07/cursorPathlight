@@ -52,29 +52,42 @@ def test_imports():
     print("All modules imported successfully!")
     return True
 
-def test_cpu_pytorch():
-    """Test PyTorch CPU operation"""
-    print("\nTesting PyTorch CPU operation...")
+def test_cuda_pytorch():
+    """Test PyTorch with CUDA support"""
+    print("\nTesting PyTorch with CUDA support...")
     
     try:
         import torch
         print(f"✓ PyTorch version: {torch.__version__}")
-        print(f"✓ CPU device available: {torch.device('cpu')}")
-        print(f"✓ Number of CPU threads: {torch.get_num_threads()}")
-        
-        # Test tensor operations on CPU
-        test_tensor = torch.randn(10, 10)
-        result = torch.matmul(test_tensor, test_tensor.T)
-        print(f"✓ CPU tensor operations working: {result.device}")
         
         if torch.cuda.is_available():
-            print("ℹ Note: CUDA is available but we're using CPU-only mode for compatibility")
+            print(f"✓ CUDA available: {torch.cuda.get_device_name(0)}")
+            print(f"✓ CUDA memory: {torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f} GB")
+            print(f"✓ CUDA version: {torch.version.cuda}")
+            
+            # Test CUDA tensor operations
+            test_tensor = torch.randn(100, 100).cuda()
+            result = torch.matmul(test_tensor, test_tensor.T)
+            print(f"✓ CUDA tensor operations working on: {result.device}")
+            
+            # Test cuDNN
+            if torch.backends.cudnn.enabled:
+                print(f"✓ cuDNN enabled: version {torch.backends.cudnn.version()}")
+            else:
+                print("⚠ cuDNN not enabled")
+            
+            return True
         else:
-            print("ℹ CUDA not available - running in CPU-only mode (expected)")
-        
-        return True
+            print("✗ CUDA not available")
+            print("ℹ Falling back to CPU operations...")
+            # Test CPU as fallback
+            test_tensor = torch.randn(10, 10)
+            result = torch.matmul(test_tensor, test_tensor.T)
+            print(f"✓ CPU tensor operations working: {result.device}")
+            return False
+            
     except Exception as e:
-        print(f"✗ PyTorch CPU test failed: {e}")
+        print(f"✗ PyTorch CUDA test failed: {e}")
         return False
 
 def test_project_modules():
@@ -251,7 +264,7 @@ def main():
     
     tests = [
         ("Module Imports", test_imports),
-        ("PyTorch CPU Operation", test_cpu_pytorch),
+        ("CUDA PyTorch Support", test_cuda_pytorch),
         ("Project Modules", test_project_modules),
         ("Configuration", test_configuration),
         ("Directories", test_directories),

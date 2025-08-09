@@ -29,7 +29,7 @@ yolo:
   iou_threshold: 0.45
   max_detections: 100
   classes: [0, 1, 2, 3, 5, 7]  # person, bicycle, car, motorcycle, bus, truck
-  device: "cpu"  # Force CPU for Jetson compatibility
+  device: "cuda"  # Use CUDA for optimal performance, fallback to CPU if needed
 
 # Stereo Vision Configuration
 stereo_vision:
@@ -48,8 +48,8 @@ stereo_vision:
 # Face Recognition Configuration
 face_recognition:
   tolerance: 0.6
-  model: "hog"  # hog (CPU-only), cnn (requires GPU)
-  upsample: 1  # Reduce to 0 for better CPU performance
+  model: "cnn"  # cnn (GPU accelerated), hog (CPU fallback)
+  upsample: 1  # Increase for better accuracy on GPU
   database_path: "/home/nvidia/cursorPathlight/data/faces"
   known_faces_file: "known_faces.pkl"
 

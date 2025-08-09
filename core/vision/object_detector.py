@@ -28,9 +28,9 @@ class ObjectDetector:
         self.max_detections = config.get('max_detections', 100)
         self.target_classes = config.get('classes', [0, 1, 2, 3, 5, 7])  # person, vehicle classes
         
-        # Device configuration - Force CPU for compatibility
-        self.device = 'cpu'  # Force CPU-only operation for Jetson compatibility
-        self.logger.info(f"Using device: {self.device} (forced CPU mode)")
+        # Device configuration - Use CUDA if available, fallback to CPU
+        self.device = config.get('device', 'cuda' if torch.cuda.is_available() else 'cpu')
+        self.logger.info(f"Using device: {self.device}")
         
         # Performance tracking
         self.fps_counter = 0
@@ -45,9 +45,9 @@ class ObjectDetector:
             # Load model
             model = YOLO(model_name)
             
-            # Move to CPU device (GPU disabled for compatibility)
-            model.to('cpu')
-            self.logger.info("Model loaded on CPU device")
+            # Move to appropriate device
+            model.to(self.device)
+            self.logger.info(f"Model loaded on {self.device} device")
             
             self.logger.info("YOLOv8 model loaded successfully")
             return model
