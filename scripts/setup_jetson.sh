@@ -4,7 +4,7 @@
 # This script sets up the complete environment for the Pathlight AI wearable
 # Optimized for JetPack 6.2.1 with CUDA 12.6 support
 
-set -e  # Exit on any error
+set -euo pipefail  # Exit on any error, undefined vars, pipe failures
 
 echo "=========================================="
 echo "Pathlight Setup Script for Jetson Orin Nano"
