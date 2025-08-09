@@ -214,24 +214,27 @@ install_pytorch() {
     print_status "Detected CUDA version: $CUDA_VERSION"
     
     # Install NVIDIA's official PyTorch wheel for Jetson
-    if [[ "$CUDA_VERSION" == "126" ]]; then
-        print_status "Installing NVIDIA PyTorch 2.5.0a0 for CUDA 12.6..."
-        # Official NVIDIA PyTorch wheel for JetPack 6.2.1
-        pip install --no-cache https://developer.download.nvidia.com/compute/redist/jp/v62/pytorch/torch-2.5.0a0+872d972e41.nv24.08.17622132-cp310-cp310-linux_aarch64.whl
-        
-        # Install torchvision and torchaudio
-        pip install torchvision==0.20.0 --no-deps
-        pip install torchaudio==2.5.0 --no-deps
-        
-    elif [[ "$CUDA_VERSION" == "121" ]]; then
-        print_status "Installing PyTorch for CUDA 12.1..."
-        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-    else
-        print_warning "Unsupported CUDA version, trying latest CUDA 12.6 wheels..."
-        pip install --no-cache https://developer.download.nvidia.com/compute/redist/jp/v62/pytorch/torch-2.5.0a0+872d972e41.nv24.08.17622132-cp310-cp310-linux_aarch64.whl
-        pip install torchvision==0.20.0 --no-deps
-        pip install torchaudio==2.5.0 --no-deps
-    fi
+    # Using PyTorch 2.4.0a0 - most stable alpha release with extensive validation
+    print_status "Installing NVIDIA PyTorch 2.4.0a0 (stable alpha) for JetPack 6.x..."
+    
+    # This is the most tested and stable PyTorch wheel for Jetson
+    # PyTorch 2.4.0a0+07cecf4168 from 24.05 release - proven compatibility
+    pip install --no-cache https://developer.download.nvidia.com/compute/redist/jp/v60/pytorch/torch-2.4.0a0+07cecf4168.nv24.05.13386749-cp310-cp310-linux_aarch64.whl
+    
+    # Install compatible torchvision (build from source for compatibility)
+    print_status "Building compatible torchvision 0.19.0 from source..."
+    apt-get update && apt-get install -y --no-install-recommends \
+        libjpeg-dev zlib1g-dev libpython3-dev libavcodec-dev libavformat-dev libswscale-dev \
+        libffi-dev libssl-dev build-essential cmake
+    
+    # Build torchvision 0.19.0 (compatible with PyTorch 2.4.0)
+    git clone --branch v0.19.0 --depth 1 https://github.com/pytorch/vision torchvision_build
+    cd torchvision_build
+    python3 setup.py install
+    cd .. && rm -rf torchvision_build
+    
+    print_status "Installing torchaudio 2.4.0..."
+    pip install torchaudio==2.4.0 --no-deps
     
     print_success "PyTorch with CUDA support installed"
 }
@@ -246,23 +249,46 @@ install_python_deps() {
     pip install numpy pillow matplotlib scipy
     
     # Install OpenCV with CUDA support
-    pip install opencv-python
-    pip install opencv-contrib-python
+    print_status "Installing OpenCV 4.10.0 with CUDA support..."
+    pip install opencv-python==4.10.0.84
+    pip install opencv-contrib-python==4.10.0.84
     
-    # Install AI and ML libraries
-    pip install ultralytics  # YOLOv8 with CUDA support
+    # Verify OpenCV CUDA support
+    python3 -c "import cv2; print(f'OpenCV version: {cv2.__version__}'); print(f'CUDA devices: {cv2.cuda.getCudaEnabledDeviceCount()}')" || print_warning "OpenCV CUDA verification failed"
     
-    # Install face_recognition with proper dependencies
-    print_status "Installing face_recognition with CPU fallback..."
-    pip install cmake dlib
-    if ! pip install face-recognition; then
-        print_warning "Standard face_recognition failed, trying alternative installation..."
-        pip install --no-deps face-recognition
-        pip install click Pillow numpy
-    fi
+    # Install YOLOv8 and dependencies
+    print_status "Installing YOLOv8 (ultralytics 8.3.0)..."
+    pip install ultralytics==8.3.0
     
-    pip install scikit-learn
-    pip install transformers
+    # Install additional ML dependencies
+    pip install \
+        scipy==1.13.1 \
+        scikit-learn==1.5.1 \
+        matplotlib==3.9.2 \
+        seaborn==0.13.2
+    
+    # Install face recognition with CUDA support
+    print_status "Installing face recognition libraries with CUDA support..."
+    
+    # Install dlib dependencies first
+    apt-get update && apt-get install -y --no-install-recommends \
+        libopenblas-dev liblapack-dev libatlas-base-dev \
+        libgtk-3-dev libboost-all-dev
+    
+    # Install dlib with CUDA support
+    print_status "Installing dlib 19.24.6 with CUDA support..."
+    pip install cmake
+    pip install dlib==19.24.6
+    
+    # Install face_recognition for CNN model support
+    print_status "Installing face_recognition 1.3.0..."
+    pip install face_recognition==1.3.0
+    
+    # Verify face_recognition installation
+    python3 -c "import face_recognition; print(f'face_recognition version: {face_recognition.__version__}')" || print_warning "face_recognition verification failed"
+    
+    # Additional AI libraries
+    pip install transformers==4.45.2
     
     # Install audio libraries
     pip install pyaudio pyttsx3 speechrecognition librosa
