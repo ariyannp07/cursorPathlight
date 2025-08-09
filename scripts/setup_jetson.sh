@@ -209,32 +209,44 @@ install_pytorch() {
     
     source ~/cursorPathlight/cursorPathlight_env/bin/activate
     
-    # Check CUDA version to determine correct PyTorch wheel
-    CUDA_VERSION=$(nvcc --version | grep "release" | awk '{print $6}' | cut -c2-4 | tr -d .)
+    # Verify CUDA 12.6 for JetPack 6.2.1 compatibility
+    CUDA_VERSION=$(nvcc --version | grep "release" | awk '{print $6}' | cut -c2- | tr -d .)
     print_status "Detected CUDA version: $CUDA_VERSION"
     
-    # Install NVIDIA's official PyTorch wheel for Jetson
-    # Using PyTorch 2.4.0a0 - most stable alpha release with extensive validation  
-    print_status "Installing NVIDIA PyTorch 2.4.0a0 (24.06 release) for JetPack 6.2.1..."
+    if [[ "$CUDA_VERSION" != "12.6" ]]; then
+        print_error "Expected CUDA 12.6 for JetPack 6.2.1, found $CUDA_VERSION"
+        print_error "Please ensure JetPack 6.2.1 is properly installed"
+        exit 1
+    fi
     
-    # This is the CORRECT PyTorch wheel for JetPack 6.2.1 with CUDA 12.5 support
-    # PyTorch 2.4.0a0+f70bd71a48 from 24.06 release - JetPack 6.2.1 compatibility
-    pip install --no-cache https://developer.download.nvidia.com/compute/redist/jp/v60/pytorch/torch-2.4.0a0+f70bd71a48.nv24.06.13825652-cp310-cp310-linux_aarch64.whl
+    # Install cuSPARSELt (required for PyTorch 24.06+ builds)
+    print_status "Installing cuSPARSELt for PyTorch compatibility..."
+    cd /tmp
+    wget https://developer.download.nvidia.com/compute/libcusparse-lt/0.6.0/local_installers/libcusparse-lt-dev-0.6.0.106-1_arm64.deb
+    sudo dpkg -i libcusparse-lt-dev-0.6.0.106-1_arm64.deb || print_warning "cuSPARSELt installation failed, continuing..."
+    rm -f libcusparse-lt-dev-0.6.0.106-1_arm64.deb
+    cd ~/cursorPathlight
     
-    # Install compatible torchvision (build from source for compatibility)
-    print_status "Building compatible torchvision 0.19.0 from source..."
+    # Install NVIDIA's official PyTorch 2.5.0 wheel for JetPack 6.2.1
+    print_status "Installing NVIDIA PyTorch 2.5.0 (CUDA 12.6) for JetPack 6.2.1..."
+    
+    # PyTorch 2.5.0 for CUDA 12.6 (JetPack 6.2.1) - prevents ABI mismatches
+    pip install --no-cache https://developer.download.nvidia.com/compute/redist/jp/v62/pytorch/torch-2.5.0a0+872d972e41.nv24.08.17622132-cp310-cp310-linux_aarch64.whl
+    
+    # Install compatible torchvision (build from source against exact PyTorch version)
+    print_status "Building TorchVision 0.19.1 from source for PyTorch 2.5.0 compatibility..."
     apt-get update && apt-get install -y --no-install-recommends \
         libjpeg-dev zlib1g-dev libpython3-dev libavcodec-dev libavformat-dev libswscale-dev \
         libffi-dev libssl-dev build-essential cmake
     
-    # Build torchvision 0.19.0 (compatible with PyTorch 2.4.0)
-    git clone --branch v0.19.0 --depth 1 https://github.com/pytorch/vision torchvision_build
+    # Build TorchVision 0.19.1 (compatible with PyTorch 2.5.0)
+    git clone --branch v0.19.1 --depth 1 https://github.com/pytorch/vision torchvision_build
     cd torchvision_build
     python3 setup.py install
     cd .. && rm -rf torchvision_build
     
-    print_status "Installing torchaudio 2.4.0..."
-    pip install torchaudio==2.4.0 --no-deps
+    print_status "Installing torchaudio 2.5.0..."
+    pip install torchaudio==2.5.0 --no-deps
     
     print_success "PyTorch with CUDA support installed"
 }
@@ -245,19 +257,62 @@ install_python_deps() {
     
     source ~/cursorPathlight/cursorPathlight_env/bin/activate
     
-    # Install core dependencies
-    pip install numpy pillow matplotlib scipy
+    # Install core dependencies with NumPy 1.26.4 (for YOLOv8 8.3.0 compatibility)
+    pip install numpy==1.26.4 pillow matplotlib scipy
     
-    # Install OpenCV with CUDA support
-    print_status "Installing OpenCV 4.10.0 with CUDA support..."
-    pip install opencv-python==4.10.0.84
-    pip install opencv-contrib-python==4.10.0.84
+    # Build OpenCV from source with CUDA 12.6 support
+    print_status "Building OpenCV 4.10.0 from source with CUDA 12.6, GStreamer, and V4L2..."
+    
+    # Install OpenCV build dependencies
+    apt-get update && apt-get install -y --no-install-recommends \
+        build-essential cmake git pkg-config \
+        libjpeg-dev libtiff5-dev libpng-dev \
+        libavcodec-dev libavformat-dev libswscale-dev \
+        libgtk2.0-dev libcanberra-gtk-module \
+        libxvidcore-dev libx264-dev libgtk-3-dev \
+        libtbb2 libtbb-dev libdc1394-22-dev libv4l-dev \
+        libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+        libvorbis-dev libxine2-dev libtesseract-dev \
+        libfaac-dev libmp3lame-dev libtheora-dev \
+        libpostproc-dev libopencore-amrnb-dev libopencore-amrwb-dev \
+        libopenblas-dev libatlas-base-dev gfortran
+    
+    # Clone and build OpenCV with CUDA
+    cd /tmp
+    git clone --branch 4.10.0 --depth 1 https://github.com/opencv/opencv.git
+    git clone --branch 4.10.0 --depth 1 https://github.com/opencv/opencv_contrib.git
+    cd opencv && mkdir build && cd build
+    
+    cmake -D CMAKE_BUILD_TYPE=RELEASE \
+        -D CMAKE_INSTALL_PREFIX=/usr/local \
+        -D OPENCV_EXTRA_MODULES_PATH=/tmp/opencv_contrib/modules \
+        -D WITH_CUDA=ON \
+        -D CUDA_ARCH_BIN=8.7 \
+        -D CUDA_ARCH_PTX=8.7 \
+        -D WITH_CUDNN=ON \
+        -D OPENCV_DNN_CUDA=ON \
+        -D ENABLE_FAST_MATH=ON \
+        -D CUDA_FAST_MATH=ON \
+        -D WITH_CUBLAS=ON \
+        -D WITH_LIBV4L=ON \
+        -D WITH_GSTREAMER=ON \
+        -D WITH_GSTREAMER_0_10=OFF \
+        -D BUILD_opencv_python3=ON \
+        -D OPENCV_GENERATE_PKGCONFIG=ON \
+        -D BUILD_EXAMPLES=OFF ..
+    
+    make -j$(nproc)
+    make install
+    ldconfig
+    
+    # Clean up build files
+    cd ~/cursorPathlight && rm -rf /tmp/opencv /tmp/opencv_contrib
     
     # Verify OpenCV CUDA support
-    python3 -c "import cv2; print(f'OpenCV version: {cv2.__version__}'); print(f'CUDA devices: {cv2.cuda.getCudaEnabledDeviceCount()}')" || print_warning "OpenCV CUDA verification failed"
+    python3 -c "import cv2; print(f'OpenCV version: {cv2.__version__}'); print('CUDA support:'); print(cv2.getBuildInformation())" || print_warning "OpenCV CUDA verification failed"
     
-    # Install YOLOv8 and dependencies
-    print_status "Installing YOLOv8 (ultralytics 8.3.0)..."
+    # Install YOLOv8 8.3.0 (compatible with NumPy 1.26.4)
+    print_status "Installing YOLOv8 8.3.0 (with NumPy 1.26.4 compatibility)..."
     pip install ultralytics==8.3.0
     
     # Install additional ML dependencies
@@ -278,18 +333,31 @@ install_python_deps() {
         libx11-dev libatlas3-base
     
     # Build dlib 19.24.6 from source with CUDA support
-    print_status "Building dlib 19.24.6 from source with CUDA support..."
+    print_status "Building dlib 19.24.6 with CUDA 12.6 support for Orin Nano (sm_87)..."
+    print_status "This will take approximately 45 minutes and requires high RAM usage..."
+    
+    # Enable swap to prevent OOM during dlib compilation
+    print_status "Enabling swap for dlib compilation..."
+    if [ ! -f /swapfile ]; then
+        dd if=/dev/zero of=/swapfile bs=1M count=4096
+        chmod 600 /swapfile
+        mkswap /swapfile
+        swapon /swapfile
+    fi
+    
     cd /tmp
     wget http://dlib.net/files/dlib-19.24.6.tar.bz2
     tar xf dlib-19.24.6.tar.bz2
     cd dlib-19.24.6
     
-    # Create build directory and configure with CUDA
+    # Create build directory and configure with CUDA for Orin Nano
     mkdir build && cd build
     cmake .. \
         -DDLIB_USE_CUDA=1 \
-        -DUSE_AVX_INSTRUCTIONS=1 \
+        -DUSE_AVX_INSTRUCTIONS=OFF \
+        -DCMAKE_CUDA_ARCHITECTURES=87 \
         -DCMAKE_BUILD_TYPE=Release \
+        -DCUDA_HOST_COMPILER=/usr/bin/gcc \
         -DCMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/stubs
     
     # Build and install dlib (this takes ~45 minutes)
@@ -303,6 +371,9 @@ install_python_deps() {
     
     # Clean up build files
     cd /tmp && rm -rf dlib-19.24.6*
+    
+    print_status "Disabling swap after dlib build..."
+    swapoff /swapfile || true
     
     # Install face_recognition for CNN model support
     print_status "Installing face_recognition 1.3.0..."

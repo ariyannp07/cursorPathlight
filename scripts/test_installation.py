@@ -1,18 +1,177 @@
 #!/usr/bin/env python3
 """
 Pathlight Installation Test Script
-Tests all components to ensure proper installation
+Tests all components to ensure proper installation with CUDA 12.6 compatibility
 """
 
 import sys
 import os
 import importlib
 import logging
+import subprocess
 from pathlib import Path
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
+
+def test_cuda_environment():
+    """Test CUDA environment and versions"""
+    print("=" * 60)
+    print("TESTING CUDA ENVIRONMENT")
+    print("=" * 60)
+    
+    try:
+        # Test CUDA version
+        result = subprocess.run(['nvcc', '--version'], capture_output=True, text=True)
+        if result.returncode == 0:
+            print("CUDA Compiler:")
+            for line in result.stdout.split('\n'):
+                if 'release' in line:
+                    print(f"  {line.strip()}")
+        else:
+            print("✗ CUDA compiler not found")
+            return False
+            
+        # Test TensorRT packages
+        result = subprocess.run(['dpkg', '-l'], capture_output=True, text=True)
+        tensorrt_packages = [line for line in result.stdout.split('\n') if 'nvinfer' in line]
+        if tensorrt_packages:
+            print("TensorRT packages:")
+            for pkg in tensorrt_packages[:3]:  # Show first 3
+                print(f"  {pkg}")
+        else:
+            print("⚠ TensorRT packages not found")
+            
+        return True
+        
+    except Exception as e:
+        print(f"✗ CUDA environment test failed: {e}")
+        return False
+
+def test_pytorch_cuda():
+    """Test PyTorch CUDA compatibility"""
+    print("\nTesting PyTorch CUDA compatibility...")
+    
+    try:
+        import torch
+        import platform
+        
+        print(f"PyTorch version: {torch.__version__}")
+        print(f"CUDA version: {torch.version.cuda}")
+        print(f"CUDA available: {torch.cuda.is_available()}")
+        
+        if torch.cuda.is_available():
+            print(f"GPU count: {torch.cuda.device_count()}")
+            print(f"Current GPU: {torch.cuda.get_device_name(0)}")
+            print(f"GPU memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
+        else:
+            print("✗ CUDA not available in PyTorch")
+            return False
+            
+        return True
+        
+    except Exception as e:
+        print(f"✗ PyTorch CUDA test failed: {e}")
+        return False
+
+def test_torchvision_compatibility():
+    """Test TorchVision ABI compatibility"""
+    print("\nTesting TorchVision compatibility...")
+    
+    try:
+        import torchvision
+        import torch
+        
+        print(f"TorchVision version: {torchvision.__version__}")
+        print(f"PyTorch version: {torch.__version__}")
+        
+        # Test a simple operation
+        transform = torchvision.transforms.ToTensor()
+        print("✓ TorchVision transforms working")
+        
+        return True
+        
+    except Exception as e:
+        print(f"✗ TorchVision compatibility test failed: {e}")
+        return False
+
+def test_opencv_cuda():
+    """Test OpenCV CUDA support"""
+    print("\nTesting OpenCV CUDA support...")
+    
+    try:
+        import cv2
+        
+        print(f"OpenCV version: {cv2.__version__}")
+        
+        # Check build information
+        build_info = cv2.getBuildInformation()
+        cuda_enabled = "CUDA: YES" in build_info
+        gstreamer_enabled = "GStreamer: YES" in build_info
+        
+        print(f"CUDA support: {'YES' if cuda_enabled else 'NO'}")
+        print(f"GStreamer support: {'YES' if gstreamer_enabled else 'NO'}")
+        
+        if cuda_enabled:
+            cuda_devices = cv2.cuda.getCudaEnabledDeviceCount()
+            print(f"CUDA devices: {cuda_devices}")
+        
+        return cuda_enabled
+        
+    except Exception as e:
+        print(f"✗ OpenCV CUDA test failed: {e}")
+        return False
+
+def test_dlib_cuda():
+    """Test dlib CUDA support"""
+    print("\nTesting dlib CUDA support...")
+    
+    try:
+        import dlib
+        
+        print(f"dlib version: {dlib.__version__}")
+        
+        try:
+            cuda_enabled = dlib.DLIB_USE_CUDA
+            print(f"DLIB_USE_CUDA: {cuda_enabled}")
+            
+            if cuda_enabled:
+                print("✓ dlib compiled with CUDA support")
+            else:
+                print("✗ dlib not compiled with CUDA")
+                return False
+                
+        except AttributeError:
+            print("✗ DLIB CUDA flag not accessible")
+            return False
+            
+        return True
+        
+    except Exception as e:
+        print(f"✗ dlib CUDA test failed: {e}")
+        return False
+
+def test_ultralytics_numpy():
+    """Test Ultralytics and NumPy compatibility"""
+    print("\nTesting Ultralytics and NumPy compatibility...")
+    
+    try:
+        import numpy
+        import ultralytics
+        
+        print(f"Ultralytics version: {ultralytics.__version__}")
+        print(f"NumPy version: {numpy.__version__}")
+        
+        # Test YOLOv8 import
+        from ultralytics import YOLO
+        print("✓ YOLOv8 import successful")
+        
+        return True
+        
+    except Exception as e:
+        print(f"✗ Ultralytics/NumPy compatibility test failed: {e}")
+        return False
 
 def test_imports():
     """Test that all required modules can be imported"""
@@ -263,8 +422,13 @@ def main():
     print("=" * 50)
     
     tests = [
+        ("CUDA Environment", test_cuda_environment),
+        ("PyTorch CUDA Support", test_pytorch_cuda),
+        ("TorchVision Compatibility", test_torchvision_compatibility),
+        ("OpenCV CUDA Support", test_opencv_cuda),
+        ("dlib CUDA Support", test_dlib_cuda),
+        ("Ultralytics/NumPy Compatibility", test_ultralytics_numpy),
         ("Module Imports", test_imports),
-        ("CUDA PyTorch Support", test_cuda_pytorch),
         ("Project Modules", test_project_modules),
         ("Configuration", test_configuration),
         ("Directories", test_directories),

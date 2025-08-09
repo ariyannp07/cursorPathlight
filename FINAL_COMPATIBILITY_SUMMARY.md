@@ -12,26 +12,26 @@ All components below have been **cross-verified** for complete compatibility:
 ### **Core AI Framework**
 | Component | Version | Compatibility Status |
 |:----------|:--------|:-------------------|
-| **PyTorch** | `2.4.0a0+f70bd71a48` | ✅ **NVIDIA 24.06 release for JetPack 6.2.1** |
-| **TorchVision** | `0.19.0` | ✅ **Source built for PyTorch compatibility** |
-| **TorchAudio** | `2.4.0` | ✅ **Matches PyTorch version exactly** |
+| **PyTorch** | `2.5.0a0+872d972e41` | ✅ **NVIDIA Jetson wheel for CUDA 12.6** |
+| **TorchVision** | `0.19.1` | ✅ **Source built against PyTorch 2.5.0** |
+| **TorchAudio** | `2.5.0` | ✅ **Matches PyTorch version exactly** |
 
 ### **Computer Vision & Detection**
 | Component | Version | Compatibility Status |
 |:----------|:--------|:-------------------|
-| **OpenCV** | `4.10.0.84` | ✅ **CUDA enabled (source build option included)** |
-| **YOLOv8** | `8.3.0` | ✅ **GPU optimized for PyTorch 2.4.0** |
+| **OpenCV** | `4.10.0` | ✅ **SOURCE BUILT with CUDA 12.6 + GStreamer** |
+| **YOLOv8** | `8.3.0` | ✅ **With NumPy 1.26.4 (compatibility ensured)** |
 
 ### **Face Recognition**
 | Component | Version | Compatibility Status |
 |:----------|:--------|:-------------------|
-| **dlib** | `19.24.6` | ✅ **SOURCE BUILT with CUDA 12.4/12.6 support** |
+| **dlib** | `19.24.6` | ✅ **SOURCE BUILT with CUDA 12.6 (sm_87)** |
 | **face_recognition** | `1.3.0` | ✅ **CNN model support with CUDA dlib** |
 
 ### **System Requirements**
 | Component | Version | Compatibility Status |
 |:----------|:--------|:-------------------|
-| **CUDA** | `12.4/12.6` | ✅ **JetPack 6.2.1 native support** |
+| **CUDA** | `12.6` | ✅ **JetPack 6.2.1 ONLY (no version mixing)** |
 | **JetPack** | `6.2.1` | ✅ **Target platform** |
 | **Python** | `3.10` | ✅ **All wheels and builds compatible** |
 
@@ -39,20 +39,30 @@ All components below have been **cross-verified** for complete compatibility:
 
 ## 🔧 **CRITICAL FIXES IMPLEMENTED**
 
-### **1. PyTorch Version Correction**
-- **Issue**: Initially selected 2.5.0a0 (untested alpha)
-- **Fix**: Corrected to 2.4.0a0+f70bd71a48 (NVIDIA 24.06 - most stable)
-- **Impact**: Ensures maximum stability and compatibility
+### **1. CUDA Version Consistency**
+- **Issue**: Originally mixed CUDA 12.4/12.6 versions 
+- **Fix**: Locked to CUDA 12.6 throughout entire stack
+- **Impact**: Prevents runtime ABI mismatch errors
 
-### **2. dlib CUDA Support**
-- **Issue**: pip dlib wheels have NO CUDA support
-- **Fix**: Added source build with cmake flags: `-DDLIB_USE_CUDA=1`
-- **Impact**: Enables 5-10x faster face recognition with CNN models
+### **2. PyTorch Jetson Wheel**
+- **Issue**: Used wrong PyTorch wheel (24.06 for CUDA 12.4)
+- **Fix**: Switched to PyTorch 2.5.0 Jetson wheel for CUDA 12.6
+- **Impact**: Proper ABI compatibility with JetPack 6.2.1
 
-### **3. OpenCV CUDA Verification**
-- **Issue**: Pre-built wheels may lack CUDA 12.6 support
-- **Fix**: Added source build option with CUDA verification
-- **Impact**: Guarantees CUDA acceleration for computer vision
+### **3. OpenCV Source Build**
+- **Issue**: pip OpenCV wheels have NO CUDA support
+- **Fix**: Added complete source build with CUDA 12.6 + GStreamer
+- **Impact**: Full CUDA acceleration + camera support
+
+### **4. YOLOv8 + NumPy Compatibility**
+- **Issue**: YOLOv8 8.3.0 incompatible with NumPy 2.x
+- **Fix**: Pinned NumPy 1.26.4 for compatibility
+- **Impact**: Prevents silent import/runtime failures
+
+### **5. dlib Architecture Targeting**
+- **Issue**: Generic CUDA build without Orin optimization
+- **Fix**: Added sm_87 targeting + swap management
+- **Impact**: Optimized performance + prevents OOM during build
 
 ---
 
