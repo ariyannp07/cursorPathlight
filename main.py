@@ -14,6 +14,14 @@ import numpy as np
 from pathlib import Path
 from typing import Dict, Any
 
+# CPU optimization for Jetson
+os.environ['OMP_NUM_THREADS'] = str(max(1, os.cpu_count() // 2))  # Use half of available CPU cores
+os.environ['MKL_NUM_THREADS'] = str(max(1, os.cpu_count() // 2))
+os.environ['OPENBLAS_NUM_THREADS'] = str(max(1, os.cpu_count() // 2))
+
+# Force CPU-only operation for PyTorch (if imported later)
+os.environ['CUDA_VISIBLE_DEVICES'] = ''
+
 # Add project root to path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))

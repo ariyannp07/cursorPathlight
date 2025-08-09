@@ -52,23 +52,29 @@ def test_imports():
     print("All modules imported successfully!")
     return True
 
-def test_cuda():
-    """Test CUDA availability"""
-    print("\nTesting CUDA...")
+def test_cpu_pytorch():
+    """Test PyTorch CPU operation"""
+    print("\nTesting PyTorch CPU operation...")
     
     try:
         import torch
+        print(f"✓ PyTorch version: {torch.__version__}")
+        print(f"✓ CPU device available: {torch.device('cpu')}")
+        print(f"✓ Number of CPU threads: {torch.get_num_threads()}")
+        
+        # Test tensor operations on CPU
+        test_tensor = torch.randn(10, 10)
+        result = torch.matmul(test_tensor, test_tensor.T)
+        print(f"✓ CPU tensor operations working: {result.device}")
+        
         if torch.cuda.is_available():
-            device_name = torch.cuda.get_device_name(0)
-            memory = torch.cuda.get_device_properties(0).total_memory / 1024**3
-            print(f"✓ CUDA available: {device_name}")
-            print(f"✓ GPU Memory: {memory:.1f} GB")
-            return True
+            print("ℹ Note: CUDA is available but we're using CPU-only mode for compatibility")
         else:
-            print("✗ CUDA not available")
-            return False
+            print("ℹ CUDA not available - running in CPU-only mode (expected)")
+        
+        return True
     except Exception as e:
-        print(f"✗ CUDA test failed: {e}")
+        print(f"✗ PyTorch CPU test failed: {e}")
         return False
 
 def test_project_modules():
@@ -245,7 +251,7 @@ def main():
     
     tests = [
         ("Module Imports", test_imports),
-        ("CUDA Support", test_cuda),
+        ("PyTorch CPU Operation", test_cpu_pytorch),
         ("Project Modules", test_project_modules),
         ("Configuration", test_configuration),
         ("Directories", test_directories),

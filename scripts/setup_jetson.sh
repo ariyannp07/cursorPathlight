@@ -169,16 +169,16 @@ setup_python_env() {
     print_success "Python environment created"
 }
 
-# Install PyTorch for Jetson
+# Install PyTorch for Jetson (CPU-only)
 install_pytorch() {
-    print_status "Installing PyTorch for Jetson..."
+    print_status "Installing PyTorch for Jetson (CPU-only)..."
     
     source ~/cursorPathlight/cursorPathlight_env/bin/activate
     
-    # Install PyTorch with CUDA support for Jetson
-    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+    # Install PyTorch CPU-only version for better compatibility on Jetson
+    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
     
-    print_success "PyTorch installed"
+    print_success "PyTorch (CPU-only) installed"
 }
 
 # Install Python dependencies
@@ -190,8 +190,9 @@ install_python_deps() {
     # Install core dependencies
     pip install numpy pillow matplotlib scipy
     
-    # Install OpenCV
-    pip install opencv-python opencv-contrib-python
+    # Install OpenCV for Jetson (pre-built wheels)
+    pip install opencv-python-headless
+    pip install opencv-contrib-python-headless
     
     # Install AI and ML libraries
     pip install ultralytics  # YOLOv8
@@ -330,14 +331,19 @@ import ultralytics
 print('All core libraries imported successfully')
 "
     
-    # Test CUDA
+    # Test PyTorch CPU operation
     python3 -c "
 import torch
+print(f'PyTorch version: {torch.__version__}')
+print(f'CPU device available: {torch.device(\"cpu\")}')
+print(f'Number of CPU threads: {torch.get_num_threads()}')
+# Create a test tensor to verify CPU operation
+test_tensor = torch.randn(3, 3)
+print(f'Test tensor created successfully on: {test_tensor.device}')
 if torch.cuda.is_available():
-    print(f'CUDA available: {torch.cuda.get_device_name(0)}')
-    print(f'CUDA memory: {torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f} GB')
+    print('Note: CUDA is available but we are using CPU-only mode for compatibility')
 else:
-    print('CUDA not available')
+    print('CUDA not available - running in CPU-only mode (expected)')
 "
     
     # Test IMX219 CSI camera

@@ -33,8 +33,8 @@ sudo apt install -y git curl wget vim nano htop
 # Set up Python environment
 sudo apt install -y python3-pip python3-venv python3-dev
 
-# Install CUDA and cuDNN (should be pre-installed with JetPack)
-nvidia-smi  # Verify CUDA installation
+# Note: CUDA support disabled for compatibility
+# We will use CPU-only operation for reliable performance
 ```
 
 ## Step 2: Python Environment Setup
@@ -53,17 +53,17 @@ source cursorPathlight_env/bin/activate
 pip install --upgrade pip
 ```
 
-### 2.2 Install PyTorch for Jetson
+### 2.2 Install PyTorch for Jetson (CPU-only)
 ```bash
-# Install PyTorch with CUDA support for Jetson
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+# Install PyTorch CPU-only version for better compatibility on Jetson
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 ```
 
 ### 2.3 Install Core Dependencies
 ```bash
-# Install OpenCV with CUDA support
-pip install opencv-python
-pip install opencv-contrib-python
+# Install OpenCV (CPU version for compatibility)
+pip install opencv-python-headless
+pip install opencv-contrib-python-headless
 
 # Install other core dependencies
 pip install numpy pillow matplotlib scipy

@@ -372,8 +372,8 @@ v4l2-ctl --device=/dev/video0 --list-formats-ext
 # Check CUDA installation
 nvidia-smi
 
-# Check PyTorch CUDA support
-python -c "import torch; print(torch.cuda.is_available())"
+# Check PyTorch CPU operation (CUDA disabled for compatibility)
+python -c "import torch; print(f'PyTorch CPU: {torch.device(\"cpu\")}, Threads: {torch.get_num_threads()}')"
 ```
 
 #### Audio Issues
