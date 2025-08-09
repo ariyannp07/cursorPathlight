@@ -196,7 +196,19 @@ install_python_deps() {
     
     # Install AI and ML libraries
     pip install ultralytics  # YOLOv8
-    pip install face-recognition
+    
+    # Install face_recognition with CPU-only support
+    print_status "Installing face_recognition (CPU-only)..."
+    
+    # Try installing face_recognition, fallback if CUDA issues
+    if ! pip install face-recognition; then
+        print_warning "Standard face_recognition failed, trying CPU-only installation..."
+        pip install cmake
+        pip install dlib --no-cache-dir
+        pip install --no-deps face-recognition
+        pip install click Pillow numpy
+    fi
+    
     pip install scikit-learn
     pip install transformers
     

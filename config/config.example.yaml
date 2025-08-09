@@ -48,8 +48,8 @@ stereo_vision:
 # Face Recognition Configuration
 face_recognition:
   tolerance: 0.6
-  model: "hog"  # hog, cnn
-  upsample: 1
+  model: "hog"  # hog (CPU-only), cnn (requires GPU)
+  upsample: 1  # Reduce to 0 for better CPU performance
   database_path: "/home/nvidia/cursorPathlight/data/faces"
   known_faces_file: "known_faces.pkl"
 
