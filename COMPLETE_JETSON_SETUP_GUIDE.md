@@ -154,8 +154,8 @@ sudo apt install -y \
 chmod +x scripts/setup_jetson.sh
 
 # Run setup (this will take 45-60 minutes total)
-# - PyTorch installation: ~10 minutes
-# - dlib source build: ~45 minutes  
+# - PyTorch 2.4.0a0+f70bd71a48 (24.06): ~10 minutes
+# - dlib 19.24.6 source build with CUDA: ~45 minutes  
 # - Other packages: ~5 minutes
 sudo ./scripts/setup_jetson.sh
 

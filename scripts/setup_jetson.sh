@@ -214,12 +214,12 @@ install_pytorch() {
     print_status "Detected CUDA version: $CUDA_VERSION"
     
     # Install NVIDIA's official PyTorch wheel for Jetson
-    # Using PyTorch 2.4.0a0 - most stable alpha release with extensive validation
-    print_status "Installing NVIDIA PyTorch 2.4.0a0 (stable alpha) for JetPack 6.x..."
+    # Using PyTorch 2.4.0a0 - most stable alpha release with extensive validation  
+    print_status "Installing NVIDIA PyTorch 2.4.0a0 (24.06 release) for JetPack 6.2.1..."
     
-    # This is the most tested and stable PyTorch wheel for Jetson
-    # PyTorch 2.4.0a0+07cecf4168 from 24.05 release - proven compatibility
-    pip install --no-cache https://developer.download.nvidia.com/compute/redist/jp/v60/pytorch/torch-2.4.0a0+07cecf4168.nv24.05.13386749-cp310-cp310-linux_aarch64.whl
+    # This is the CORRECT PyTorch wheel for JetPack 6.2.1 with CUDA 12.5 support
+    # PyTorch 2.4.0a0+f70bd71a48 from 24.06 release - JetPack 6.2.1 compatibility
+    pip install --no-cache https://developer.download.nvidia.com/compute/redist/jp/v60/pytorch/torch-2.4.0a0+f70bd71a48.nv24.06.13825652-cp310-cp310-linux_aarch64.whl
     
     # Install compatible torchvision (build from source for compatibility)
     print_status "Building compatible torchvision 0.19.0 from source..."

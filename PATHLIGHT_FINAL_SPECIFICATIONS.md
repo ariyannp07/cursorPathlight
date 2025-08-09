@@ -6,8 +6,8 @@
 
 ## 📊 **VERIFIED COMPATIBLE SOFTWARE STACK**
 
-### **Core AI Framework**
-- **PyTorch**: `2.4.0a0+07cecf4168` (NVIDIA optimized for Jetson)
+### **Core AI Framework**  
+- **PyTorch**: `2.4.0a0+f70bd71a48` (NVIDIA 24.06 release for JetPack 6.2.1)
 - **TorchVision**: `0.19.0` (Source built for compatibility)
 - **TorchAudio**: `2.4.0` (Matches PyTorch version)
 
