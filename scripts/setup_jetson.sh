@@ -270,22 +270,53 @@ install_python_deps() {
     # Install face recognition with CUDA support
     print_status "Installing face recognition libraries with CUDA support..."
     
-    # Install dlib dependencies first
+    # Install dependencies for building dlib with CUDA
     apt-get update && apt-get install -y --no-install-recommends \
+        build-essential cmake pkg-config \
         libopenblas-dev liblapack-dev libatlas-base-dev \
-        libgtk-3-dev libboost-all-dev
+        libgtk-3-dev libboost-python-dev libboost-system-dev \
+        libx11-dev libatlas3-base
     
-    # Install dlib with CUDA support
-    print_status "Installing dlib 19.24.6 with CUDA support..."
-    pip install cmake
-    pip install dlib==19.24.6
+    # Build dlib 19.24.6 from source with CUDA support
+    print_status "Building dlib 19.24.6 from source with CUDA support..."
+    cd /tmp
+    wget http://dlib.net/files/dlib-19.24.6.tar.bz2
+    tar xf dlib-19.24.6.tar.bz2
+    cd dlib-19.24.6
+    
+    # Create build directory and configure with CUDA
+    mkdir build && cd build
+    cmake .. \
+        -DDLIB_USE_CUDA=1 \
+        -DUSE_AVX_INSTRUCTIONS=1 \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/stubs
+    
+    # Build and install dlib (this takes ~45 minutes)
+    make -j$(nproc)
+    make install
+    ldconfig
+    
+    # Install Python bindings with CUDA support
+    cd ..
+    python3 setup.py install
+    
+    # Clean up build files
+    cd /tmp && rm -rf dlib-19.24.6*
     
     # Install face_recognition for CNN model support
     print_status "Installing face_recognition 1.3.0..."
     pip install face_recognition==1.3.0
     
-    # Verify face_recognition installation
-    python3 -c "import face_recognition; print(f'face_recognition version: {face_recognition.__version__}')" || print_warning "face_recognition verification failed"
+    # Verify CUDA-enabled face_recognition installation
+    python3 -c "
+import face_recognition
+import dlib
+print(f'✅ face_recognition version: {face_recognition.__version__}')
+print(f'✅ dlib version: {dlib.DLIB_VERSION}')
+print(f'✅ dlib CUDA support: {\"YES\" if hasattr(dlib, \"cuda\") else \"NO\"}')
+print('Available models: hog (CPU), cnn (GPU with CUDA acceleration)')
+    " || print_warning "face_recognition CUDA verification failed"
     
     # Additional AI libraries
     pip install transformers==4.45.2

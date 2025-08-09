@@ -138,12 +138,25 @@ sudo apt install -y \
     libgtk-3-dev libboost-all-dev
 ```
 
-### **3.3 Run Setup Script**
+### **3.3 Critical Installation Notes**
+
+⚠️ **IMPORTANT: dlib CUDA Build Requirements**
+
+**Why dlib source build is required:**
+- `pip install dlib` provides **CPU-only** version
+- CUDA acceleration requires source build with `-DDLIB_USE_CUDA=1` 
+- CNN face recognition models need GPU for performance
+- Expected build time: ~45 minutes for dlib compilation
+
+### **3.4 Run Setup Script**
 ```bash
 # Make script executable
 chmod +x scripts/setup_jetson.sh
 
-# Run setup (this will take 30-45 minutes)
+# Run setup (this will take 45-60 minutes total)
+# - PyTorch installation: ~10 minutes
+# - dlib source build: ~45 minutes  
+# - Other packages: ~5 minutes
 sudo ./scripts/setup_jetson.sh
 
 # Follow prompts and wait for completion

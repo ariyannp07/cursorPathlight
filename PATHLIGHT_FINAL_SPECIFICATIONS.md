@@ -18,7 +18,7 @@
 
 ### **Face Recognition**
 - **face_recognition**: `1.3.0` (CNN model support)
-- **dlib**: `19.24.6` (CUDA enabled)
+- **dlib**: `19.24.6` (**SOURCE BUILT** with CUDA 12.4/12.6 support)
 
 ### **Machine Learning Libraries**
 - **NumPy**: `1.26.4`
